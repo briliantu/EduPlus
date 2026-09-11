@@ -8,6 +8,7 @@
 </head>
 <body>
     <a class="skip-link" href="#main-content">Sari la conținut</a>
+    <div class="ambient-background" aria-hidden="true"></div>
 
     <!-- NAVIGAȚIE SUS -->
     <header>
@@ -35,31 +36,49 @@
         </section>
 
         <h2 class="section-title">Tot ce ai nevoie pentru următorul pas</h2>
-        <div class="grid">
-            <a class="card feature-card" href="pages/programa.html">
-                <span class="badge">Matematică</span>
-                <h3>Programă & documentație</h3>
-                <p>Vezi temele principale pentru Matematică și Informatică, împărțite pe ani și capitole.</p>
-                <span class="feature-link">Deschide programa →</span>
-            </a>
-            <a class="card feature-card" href="pages/lectii.html">
-                <span class="badge">Învață în ritmul tău</span>
-                <h3>Lecții online</h3>
-                <p>Recapitulează noțiunile esențiale prin lecții scurte, structurate și ușor de parcurs.</p>
-                <span class="feature-link">Vezi lecțiile →</span>
-            </a>
-            <a class="card feature-card" href="pages/compilator.html">
-                <span class="badge">C și C++</span>
-                <h3>Compilator online</h3>
-                <p>Scrie, compilează și testează codul direct în browser, cu date de intrare proprii.</p>
-                <span class="feature-link">Deschide compilatorul →</span>
-            </a>
-            <a class="card feature-card" href="pages/inscriere.html">
-                <span class="badge">Comunitate</span>
-                <h3>Implică-te</h3>
-                <p>Înscrie-te ca elev sau voluntar și ajută la construirea unei comunități de învățare.</p>
-                <span class="feature-link">Află cum →</span>
-            </a>
+        <div class="slideshow" id="feature-slideshow" aria-roledescription="carousel" aria-label="Zonele EduPlus12">
+            <div class="slideshow-viewport">
+                <div class="slideshow-track">
+                    <a class="card feature-card slide" href="pages/programa.html" aria-label="Deschide programa și documentația">
+                        <span class="slide-number">01 / 04</span>
+                        <span class="badge">Matematică</span>
+                        <h3>Programă & documentație</h3>
+                        <p>Vezi temele principale pentru Matematică și Informatică, împărțite pe ani și capitole.</p>
+                        <span class="feature-link">Deschide programa →</span>
+                    </a>
+                    <a class="card feature-card slide" href="pages/lectii.html" aria-label="Deschide lecțiile online">
+                        <span class="slide-number">02 / 04</span>
+                        <span class="badge">Învață în ritmul tău</span>
+                        <h3>Lecții online</h3>
+                        <p>Recapitulează noțiunile esențiale prin lecții scurte, structurate și ușor de parcurs.</p>
+                        <span class="feature-link">Vezi lecțiile →</span>
+                    </a>
+                    <a class="card feature-card slide" href="pages/compilator.html" aria-label="Deschide compilatorul online">
+                        <span class="slide-number">03 / 04</span>
+                        <span class="badge">C și C++</span>
+                        <h3>Compilator online</h3>
+                        <p>Scrie, compilează și testează codul direct în browser, cu date de intrare proprii.</p>
+                        <span class="feature-link">Deschide compilatorul →</span>
+                    </a>
+                    <a class="card feature-card slide" href="pages/inscriere.html" aria-label="Deschide pagina de implicare">
+                        <span class="slide-number">04 / 04</span>
+                        <span class="badge">Comunitate</span>
+                        <h3>Implică-te</h3>
+                        <p>Înscrie-te ca elev sau voluntar și ajută la construirea unei comunități de învățare.</p>
+                        <span class="feature-link">Află cum →</span>
+                    </a>
+                </div>
+            </div>
+            <div class="slideshow-controls">
+                <button class="carousel-button" id="slide-previous" type="button" aria-label="Slide anterior">←</button>
+                <div class="slide-dots" role="tablist" aria-label="Alege zona platformei">
+                    <button class="slide-dot active" type="button" role="tab" aria-label="Slide 1" aria-selected="true"></button>
+                    <button class="slide-dot" type="button" role="tab" aria-label="Slide 2" aria-selected="false"></button>
+                    <button class="slide-dot" type="button" role="tab" aria-label="Slide 3" aria-selected="false"></button>
+                    <button class="slide-dot" type="button" role="tab" aria-label="Slide 4" aria-selected="false"></button>
+                </div>
+                <button class="carousel-button" id="slide-next" type="button" aria-label="Slide următor">→</button>
+            </div>
         </div>
 
         <section class="home-callout">
@@ -81,5 +100,6 @@
         </div>
     </footer>
 
+    <script src="assets/js/home.js" defer></script>
 </body>
 </html>
