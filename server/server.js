@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const express = require('express');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const bcrypt = require('bcryptjs');
 const { DatabaseSync } = require('node:sqlite');
 
@@ -10,7 +11,9 @@ const port = Number(process.env.PORT) || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 const publicDirectory = path.join(__dirname, '..', 'public');
 const dataDirectory = path.join(__dirname, '..', 'data');
+const sessionDirectory = path.join(dataDirectory, 'sessions');
 fs.mkdirSync(dataDirectory, { recursive: true });
+fs.mkdirSync(sessionDirectory, { recursive: true });
 app.disable('x-powered-by');
 
 const database = new DatabaseSync(path.join(dataDirectory, 'eduplus12.sqlite'));
@@ -33,6 +36,11 @@ app.use('/api', (req, res, next) => {
     next();
 });
 app.use(session({
+    store: new FileStore({
+        path: sessionDirectory,
+        ttl: 60 * 60 * 24 * 7,
+        retries: 1
+    }),
     secret: process.env.SESSION_SECRET || 'eduplus12-local-development-secret',
     resave: false,
     saveUninitialized: false,
@@ -60,6 +68,16 @@ function publicUser(user) {
 
 function getUserById(id) {
     return database.prepare('SELECT id, name, email, role, created_at FROM users WHERE id = ?').get(id);
+}
+
+function startUserSession(req, userId, callback) {
+    req.session.regenerate((error) => {
+        if (error) {
+            return callback(error);
+        }
+        req.session.userId = userId;
+        return callback(null);
+    });
 }
 
 app.get('/api/health', (req, res) => {
@@ -96,8 +114,12 @@ app.post('/api/register', async (req, res) => {
             'INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)'
         ).run(name, email, passwordHash, role);
         const user = getUserById(result.lastInsertRowid);
-        req.session.userId = user.id;
-        return res.status(201).json({ user: publicUser(user) });
+        return startUserSession(req, user.id, (sessionError) => {
+            if (sessionError) {
+                return res.status(500).json({ message: 'Contul a fost creat, dar sesiunea nu a putut fi pornită.' });
+            }
+            return res.status(201).json({ user: publicUser(user) });
+        });
     } catch (error) {
         if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
             return res.status(409).json({ message: 'Există deja un cont cu această adresă de email.' });
@@ -116,8 +138,12 @@ app.post('/api/login', async (req, res) => {
         return res.status(401).json({ message: 'Emailul sau parola nu sunt corecte.' });
     }
 
-    req.session.userId = user.id;
-    return res.json({ user: publicUser(user) });
+    return startUserSession(req, user.id, (sessionError) => {
+        if (sessionError) {
+            return res.status(500).json({ message: 'Autentificarea a reușit, dar sesiunea nu a putut fi pornită.' });
+        }
+        return res.json({ user: publicUser(user) });
+    });
 });
 
 app.post('/api/logout', (req, res) => {

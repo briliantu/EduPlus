@@ -11,6 +11,15 @@ function showMessage(message, isError = false) {
     authMessage.classList.toggle('error', isError);
 }
 
+function showServerUnavailableMessage() {
+    if (window.location.protocol === 'file:') {
+        showMessage('Deschide platforma prin http://localhost:3000, nu direct prin fisierul HTML. Porneste serverul cu npm.cmd start.', true);
+        return;
+    }
+
+    showMessage('Serverul nu raspunde. Verifica terminalul si porneste aplicatia cu npm.cmd start, apoi reincarca pagina.', true);
+}
+
 function showForm(formName) {
     const showLogin = formName === 'login';
     loginForm.classList.toggle('hidden', !showLogin);
@@ -54,7 +63,7 @@ async function submitAuth(endpoint, form) {
         }
         renderAccount(result.user);
     } catch (error) {
-        showMessage(error.message, true);
+        showMessage(error.message || 'Cererea nu a putut fi trimisa.', true);
     } finally {
         submitButton.disabled = false;
     }
@@ -84,7 +93,16 @@ if (params.get('mode') === 'register') {
     }
 }
 
-fetch('/api/me', { credentials: 'same-origin' })
-    .then((response) => response.json())
+if (window.location.protocol === 'file:') {
+    showServerUnavailableMessage();
+} else {
+    fetch('/api/me', { credentials: 'same-origin' })
+    .then((response) => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+    })
     .then((result) => renderAccount(result.user))
-    .catch(() => showMessage('Serverul nu este disponibil momentan.', true));
+    .catch(showServerUnavailableMessage);
+}

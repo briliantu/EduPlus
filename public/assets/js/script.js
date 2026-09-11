@@ -104,6 +104,7 @@ async function runCode() {
         }
 
         setOutput(formatCompilerResult(result), result.status?.id !== 3);
+        window.dispatchEvent(new CustomEvent('compiler:run', { detail: result }));
     } catch (error) {
         setOutput(`Eroare de conexiune la serverul de compilare:\n${error.message}`, true);
     } finally {
