@@ -864,6 +864,24 @@ nav a.nav-account {
     color: var(--text-muted);
 }
 
+#exam-timer {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+}
+
+#exam-answer input,
+#exam-answer select {
+    width: 100%;
+    max-width: 520px;
+    min-height: 42px;
+    margin: 12px 0;
+    padding: 10px 12px;
+    color: var(--text);
+    background: #090d16;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
 .practice-exercises {
     display: grid;
     gap: 12px;

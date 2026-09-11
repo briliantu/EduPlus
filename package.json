@@ -6,7 +6,8 @@
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
-    "dev": "node server/server.js"
+    "dev": "node server/server.js",
+    "test": "node --check server/server.js && node --check server/mailer.js && node --check public/assets/js/auth.js && node --check public/assets/js/lessons.js && node --check public/assets/js/script.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

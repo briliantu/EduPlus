@@ -44,6 +44,10 @@ npm.cmd start
 
 For Gmail, use an app password rather than your normal account password. If SMTP is not configured, registration still works and the server logs that the email was skipped.
 
+Set `REQUIRE_EMAIL_VERIFICATION=true` in production to require the verification link before login. Password recovery is available from the login form and uses a 30-minute, single-use token.
+
+Run `npm.cmd test` before pushing. The GitHub Actions workflow runs the same checks automatically on pushes and pull requests.
+
 ## Cookies
 
 The login cookie is created by `express-session`. It is `httpOnly`, uses `sameSite: 'lax'`, expires after seven days, and becomes `secure` in production. Before deployment, set a long random `SESSION_SECRET`, use HTTPS, and keep the persistent session store. Do not store passwords or authentication tokens in browser-readable cookies.

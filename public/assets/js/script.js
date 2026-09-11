@@ -84,7 +84,7 @@ async function runCode() {
     setOutput(`Se compileaza si se executa codul ${config.label}...`);
 
     try {
-        const response = await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
+        const response = await fetch('/api/compiler/run', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

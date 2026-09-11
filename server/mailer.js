@@ -5,6 +5,7 @@ const smtpPort = Number(process.env.SMTP_PORT) || 587;
 const smtpUser = process.env.SMTP_USER;
 const smtpPassword = process.env.SMTP_PASSWORD;
 const mailFrom = process.env.MAIL_FROM || 'EduPlus12 <no-reply@example.com>';
+const appBaseUrl = process.env.APP_BASE_URL || 'http://localhost:3000';
 
 const transporter = smtpHost && smtpUser && smtpPassword
     ? nodemailer.createTransport({
@@ -45,4 +46,34 @@ async function sendWelcomeEmail({ name, email }) {
     });
 }
 
-module.exports = { sendWelcomeEmail };
+async function sendVerificationEmail({ name, email, token }) {
+    if (!transporter) {
+        console.warn('Verification email skipped: SMTP is not configured.');
+        return;
+    }
+    const link = `${appBaseUrl}/api/verify-email?token=${encodeURIComponent(token)}`;
+    await transporter.sendMail({
+        from: mailFrom,
+        to: email,
+        subject: 'Verifică emailul pentru EduPlus12',
+        text: `Bun venit, ${name}! Verifică adresa de email aici: ${link}`,
+        html: `<p>Bun venit, ${escapeHtml(name)}!</p><p><a href="${link}">Verifică adresa de email</a> pentru a activa contul EduPlus12.</p>`
+    });
+}
+
+async function sendPasswordResetEmail({ name, email, token }) {
+    if (!transporter) {
+        console.warn('Password reset email skipped: SMTP is not configured.');
+        return;
+    }
+    const link = `${appBaseUrl}/pages/auth.html?reset=${encodeURIComponent(token)}`;
+    await transporter.sendMail({
+        from: mailFrom,
+        to: email,
+        subject: 'Resetarea parolei EduPlus12',
+        text: `Salut, ${name}! Resetează parola în 30 de minute aici: ${link}`,
+        html: `<p>Salut, ${escapeHtml(name)}!</p><p><a href="${link}">Resetează parola</a> în următoarele 30 de minute.</p>`
+    });
+}
+
+module.exports = { sendWelcomeEmail, sendVerificationEmail, sendPasswordResetEmail };

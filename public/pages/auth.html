@@ -41,6 +41,23 @@
                     <label for="login-password">Parolă</label>
                     <input id="login-password" name="password" type="password" autocomplete="current-password" required>
                     <button class="btn" type="submit">Intră în cont</button>
+                    <button id="forgot-password-button" class="text-button" type="button">Am uitat parola</button>
+                </form>
+
+                <form id="forgot-password-form" class="auth-form hidden">
+                    <h2>Recuperează parola</h2>
+                    <label for="forgot-email">Email</label>
+                    <input id="forgot-email" name="email" type="email" autocomplete="email" required>
+                    <button class="btn" type="submit">Trimite instrucțiunile</button>
+                    <button id="back-to-login" class="text-button" type="button">Înapoi la autentificare</button>
+                </form>
+
+                <form id="reset-password-form" class="auth-form hidden">
+                    <h2>Setează o parolă nouă</h2>
+                    <input id="reset-token" name="token" type="hidden">
+                    <label for="reset-password">Parolă nouă</label>
+                    <input id="reset-password" name="password" type="password" minlength="8" autocomplete="new-password" required>
+                    <button class="btn" type="submit">Schimbă parola</button>
                 </form>
 
                 <form id="register-form" class="auth-form hidden">

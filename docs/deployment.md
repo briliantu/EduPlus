@@ -28,5 +28,9 @@ GitHub Pages or Cloudflare Pages can host the `public/` folder for free, but the
 - Move SQLite to hosted Postgres.
 - Use a persistent session store instead of Express's default in-memory store.
 - Add email verification and password reset before collecting real personal data.
-- Add rate limiting to login and registration endpoints.
+- Set `REQUIRE_EMAIL_VERIFICATION=true` and configure `APP_BASE_URL` plus SMTP variables so verification and password reset links work.
+- Login, registration, password recovery, and compiler requests have per-process rate limits. After moving to multiple instances, replace the in-memory limiter with Redis or provider-level rate limiting.
+- Run `npm test` in CI before deployment.
 - Keep `data/` and secrets out of Git.
+
+The current UI already uses a dark visual theme and responsive layouts. The lesson page includes progress, feedback, and a five-minute exam simulation. Add verified Bacalaureat questions only from licensed or official sources; keep subject/year metadata in a separate content import rather than copying unverified material into production.

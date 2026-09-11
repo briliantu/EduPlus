@@ -5,6 +5,8 @@ const registerTab = document.getElementById('register-tab');
 const authMessage = document.getElementById('auth-message');
 const authShell = document.querySelector('.auth-shell');
 const accountPanel = document.getElementById('account-panel');
+const forgotPasswordForm = document.getElementById('forgot-password-form');
+const resetPasswordForm = document.getElementById('reset-password-form');
 
 function showMessage(message, isError = false) {
     authMessage.textContent = message;
@@ -28,6 +30,16 @@ function showForm(formName) {
     registerTab.classList.toggle('active', !showLogin);
     loginTab.setAttribute('aria-selected', String(showLogin));
     registerTab.setAttribute('aria-selected', String(!showLogin));
+    forgotPasswordForm.classList.add('hidden');
+    resetPasswordForm.classList.add('hidden');
+    showMessage('');
+}
+
+function showRecoveryForm(form) {
+    loginForm.classList.add('hidden');
+    registerForm.classList.add('hidden');
+    forgotPasswordForm.classList.toggle('hidden', form !== 'forgot');
+    resetPasswordForm.classList.toggle('hidden', form !== 'reset');
     showMessage('');
 }
 
@@ -78,7 +90,10 @@ async function submitAuth(endpoint, form) {
         if (!response.ok) {
             throw new Error(result.message || 'A apărut o eroare.');
         }
-        renderAccount(result.user);
+        if (result.user) {
+            renderAccount(result.user);
+        }
+        if (result.message) showMessage(result.message);
     } catch (error) {
         showMessage(error.message || 'Cererea nu a putut fi trimisa.', true);
     } finally {
@@ -88,6 +103,8 @@ async function submitAuth(endpoint, form) {
 
 loginTab.addEventListener('click', () => showForm('login'));
 registerTab.addEventListener('click', () => showForm('register'));
+document.getElementById('forgot-password-button').addEventListener('click', () => showRecoveryForm('forgot'));
+document.getElementById('back-to-login').addEventListener('click', () => showForm('login'));
 loginForm.addEventListener('submit', (event) => {
     event.preventDefault();
     submitAuth('login', loginForm);
@@ -96,6 +113,19 @@ registerForm.addEventListener('submit', (event) => {
     event.preventDefault();
     submitAuth('register', registerForm);
 });
+forgotPasswordForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const response = await fetch('/api/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(forgotPasswordForm))) });
+    const result = await response.json();
+    showMessage(result.message, !response.ok);
+});
+resetPasswordForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const response = await fetch('/api/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(resetPasswordForm))) });
+    const result = await response.json();
+    showMessage(result.message, !response.ok);
+    if (response.ok) showForm('login');
+});
 document.getElementById('logout-button').addEventListener('click', async () => {
     await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' });
     renderAccount(null);
@@ -103,6 +133,10 @@ document.getElementById('logout-button').addEventListener('click', async () => {
 });
 
 const params = new URLSearchParams(window.location.search);
+if (params.get('reset')) {
+    document.getElementById('reset-token').value = params.get('reset');
+    showRecoveryForm('reset');
+}
 if (params.get('mode') === 'register') {
     showForm('register');
     if (params.get('role') === 'voluntar') {

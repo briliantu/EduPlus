@@ -63,6 +63,7 @@
         <section class="dynamic-lessons" aria-labelledby="community-lessons-title">
             <div class="section-heading-row">
                 <div><span class="badge">Comunitate</span><h2 id="community-lessons-title">Lecții și practică</h2></div>
+                <button id="start-exam" class="btn btn-outline" type="button">Simulare examen · 5 min</button>
                 <span id="progress-summary" class="compiler-help"></span>
             </div>
             <div id="lesson-library" class="lesson-library"></div>
@@ -72,6 +73,13 @@
             <p id="practice-content" class="practice-content"></p>
             <div id="practice-exercises" class="practice-exercises"></div>
             <p id="practice-message" class="form-message" role="status"></p>
+        </section>
+        <section id="exam-panel" class="practice-panel hidden" aria-labelledby="exam-title">
+            <div class="section-heading-row"><div><span class="badge">Simulare examen</span><h2 id="exam-title">Răspunde în condiții de timp</h2></div><strong id="exam-timer">05:00</strong></div>
+            <p id="exam-question"></p>
+            <div id="exam-answer"></div>
+            <button id="exam-submit" class="btn" type="button">Răspunde</button>
+            <p id="exam-message" class="form-message" role="status"></p>
         </section>
 
         <div class="grid lesson-columns" id="lesson-grid">

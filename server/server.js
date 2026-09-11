@@ -1,11 +1,12 @@
 const path = require('path');
 const fs = require('fs');
+const crypto = require('node:crypto');
 const express = require('express');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const bcrypt = require('bcryptjs');
 const { DatabaseSync } = require('node:sqlite');
-const { sendWelcomeEmail } = require('./mailer');
+const { sendWelcomeEmail, sendVerificationEmail, sendPasswordResetEmail } = require('./mailer');
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -36,6 +37,21 @@ try {
         throw error;
     }
 }
+for (const column of [
+    'email_verified INTEGER NOT NULL DEFAULT 0',
+    'email_verification_token TEXT',
+    'password_reset_token TEXT',
+    'password_reset_expires_at TEXT'
+]) {
+    try {
+        database.exec(`ALTER TABLE users ADD COLUMN ${column}`);
+    } catch (error) {
+        if (!error.message.includes('duplicate column name')) {
+            throw error;
+        }
+    }
+}
+database.exec('UPDATE users SET email_verified = 1 WHERE email_verification_token IS NULL');
 database.exec(`
     CREATE TABLE IF NOT EXISTS lessons (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -74,6 +90,29 @@ database.exec(`
 
 app.set('trust proxy', 1);
 app.use(express.json({ limit: '100kb' }));
+const requestLimits = new Map();
+function rateLimit({ windowMs, max, message }) {
+    return (req, res, next) => {
+        const key = `${req.ip}:${req.path}`;
+        const now = Date.now();
+        const entry = requestLimits.get(key);
+        if (!entry || now - entry.startedAt >= windowMs) {
+            requestLimits.set(key, { startedAt: now, count: 1 });
+            return next();
+        }
+        entry.count += 1;
+        if (entry.count > max) {
+            return res.status(429).json({ message, retryAfterSeconds: Math.ceil((windowMs - (now - entry.startedAt)) / 1000) });
+        }
+        return next();
+    };
+}
+setInterval(() => {
+    const cutoff = Date.now() - 60 * 60 * 1000;
+    for (const [key, entry] of requestLimits) {
+        if (entry.startedAt < cutoff) requestLimits.delete(key);
+    }
+}, 15 * 60 * 1000).unref();
 app.use('/api', (req, res, next) => {
     res.set('Cache-Control', 'no-store');
     next();
@@ -106,6 +145,7 @@ function publicUser(user) {
         email: user.email,
         role: user.role,
         credits: user.credits || 0,
+        emailVerified: Boolean(user.email_verified),
         createdAt: user.created_at
     };
 }
@@ -122,6 +162,15 @@ function startUserSession(req, userId, callback) {
         req.session.userId = userId;
         return callback(null);
     });
+}
+
+const requiresEmailVerification = isProduction || process.env.REQUIRE_EMAIL_VERIFICATION === 'true';
+function createToken() {
+    return crypto.randomBytes(32).toString('hex');
+}
+
+function verificationRequiredForUser(user) {
+    return requiresEmailVerification && !user.email_verified;
 }
 
 const builtInLessons = [
@@ -303,7 +352,15 @@ app.post('/api/lessons/:lessonId/attempt', requireUser, (req, res) => {
         VALUES (?, ?, ?, ?)
         ON CONFLICT(user_id, lesson_id) DO UPDATE SET completed = MAX(completed, excluded.completed), minutes_spent = minutes_spent + excluded.minutes_spent, updated_at = CURRENT_TIMESTAMP
     `).run(req.user.id, lesson.id, completed ? 1 : 0, correct ? minutesSpent : 0);
-    return res.json({ correct, completed, solvedCount, total: lesson.exercises.length });
+    return res.json({
+        correct,
+        completed,
+        solvedCount,
+        total: lesson.exercises.length,
+        explanation: correct
+            ? 'Corect. Ai aplicat ideea principală a lecției.'
+            : (exercise.explanation || 'Recitește explicația lecției și verifică fiecare pas înainte să încerci din nou.')
+    });
 });
 
 app.get('/api/progress', requireUser, (req, res) => {
@@ -314,7 +371,35 @@ app.get('/api/progress', requireUser, (req, res) => {
     return res.json({ lessonsLearnt: progress.lessonsLearnt, exercisesSolved: solved.exercisesSolved, hoursSpent: Math.round((time.minutesSpent / 60) * 10) / 10, totalLessons, credits: req.user.credits || 0 });
 });
 
-app.post('/api/register', async (req, res) => {
+app.post('/api/compiler/run', rateLimit({ windowMs: 60 * 1000, max: 8, message: 'Ai atins limita de compilări. Încearcă din nou peste puțin timp.' }), async (req, res) => {
+    const payload = req.body || {};
+    if (!payload.source_code || !Number.isInteger(payload.language_id)) {
+        return res.status(400).json({ message: 'Codul și limbajul sunt obligatorii.' });
+    }
+    try {
+        const response = await fetch('https://ce.judge0.com/submissions?base64_encoded=false&wait=true', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                language_id: payload.language_id,
+                source_code: String(payload.source_code).slice(0, 50000),
+                stdin: String(payload.stdin || '').slice(0, 10000),
+                cpu_time_limit: 3,
+                wall_time_limit: 5
+            },)
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            return res.status(502).json({ message: result.message || 'Serviciul de compilare nu este disponibil momentan.' });
+        }
+        return res.json(result);
+    } catch (error) {
+        console.error('Compiler unavailable:', error.message);
+        return res.status(503).json({ message: 'Compilatorul este temporar indisponibil. Verifică soluția local și încearcă din nou.' });
+    }
+});
+
+app.post('/api/register', rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: 'Prea multe încercări de înregistrare. Încearcă din nou mai târziu.' }), async (req, res) => {
     const name = String(req.body.name || '').trim();
     const email = String(req.body.email || '').trim().toLowerCase();
     const password = String(req.body.password || '');
@@ -326,10 +411,17 @@ app.post('/api/register', async (req, res) => {
 
     try {
         const passwordHash = await bcrypt.hash(password, 12);
+        const verificationToken = createToken();
         const result = database.prepare(
-            'INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)'
-        ).run(name, email, passwordHash, role);
+            'INSERT INTO users (name, email, password_hash, role, email_verification_token, email_verified) VALUES (?, ?, ?, ?, ?, ?)'
+        ).run(name, email, passwordHash, role, verificationToken, requiresEmailVerification ? 0 : 1);
         const user = getUserById(result.lastInsertRowid);
+        sendVerificationEmail({ name: user.name, email: user.email, token: verificationToken }).catch((error) => {
+            console.error('Verification email could not be sent:', error);
+        });
+        if (verificationRequiredForUser(user)) {
+            return res.status(201).json({ message: 'Contul a fost creat. Verifică adresa de email înainte de autentificare.' });
+        }
         return startUserSession(req, user.id, (sessionError) => {
             if (sessionError) {
                 return res.status(500).json({ message: 'Contul a fost creat, dar sesiunea nu a putut fi pornită.' });
@@ -348,13 +440,16 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Prea multe încercări de autentificare. Încearcă din nou mai târziu.' }), async (req, res) => {
     const email = String(req.body.email || '').trim().toLowerCase();
     const password = String(req.body.password || '');
     const user = database.prepare('SELECT * FROM users WHERE email = ?').get(email);
 
     if (!user || !(await bcrypt.compare(password, user.password_hash))) {
         return res.status(401).json({ message: 'Emailul sau parola nu sunt corecte.' });
+    }
+    if (verificationRequiredForUser(user)) {
+        return res.status(403).json({ message: 'Verifică adresa de email înainte de autentificare.' });
     }
 
     return startUserSession(req, user.id, (sessionError) => {
@@ -363,6 +458,36 @@ app.post('/api/login', async (req, res) => {
         }
         return res.json({ user: publicUser(user) });
     });
+});
+
+app.get('/api/verify-email', (req, res) => {
+    const token = String(req.query.token || '');
+    const user = database.prepare('SELECT id FROM users WHERE email_verification_token = ?').get(token);
+    if (!user) return res.status(400).send('Linkul de verificare nu este valid sau a expirat.');
+    database.prepare('UPDATE users SET email_verified = 1, email_verification_token = NULL WHERE id = ?').run(user.id);
+    return res.send('Email verificat. Te poți întoarce în EduPlus12 și te poți autentifica.');
+});
+
+app.post('/api/forgot-password', rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: 'Prea multe cereri. Încearcă din nou mai târziu.' }), (req, res) => {
+    const email = String(req.body.email || '').trim().toLowerCase();
+    const user = database.prepare('SELECT id, name, email FROM users WHERE email = ?').get(email);
+    if (user) {
+        const token = createToken();
+        database.prepare("UPDATE users SET password_reset_token = ?, password_reset_expires_at = datetime('now', '+30 minutes') WHERE id = ?").run(token, user.id);
+        sendPasswordResetEmail({ name: user.name, email: user.email, token }).catch((error) => console.error('Password reset email failed:', error));
+    }
+    return res.json({ message: 'Dacă există un cont pentru această adresă, vei primi instrucțiuni de resetare.' });
+});
+
+app.post('/api/reset-password', rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: 'Prea multe cereri. Încearcă din nou mai târziu.' }), async (req, res) => {
+    const token = String(req.body.token || '');
+    const password = String(req.body.password || '');
+    if (password.length < 8) return res.status(400).json({ message: 'Parola trebuie să aibă cel puțin 8 caractere.' });
+    const user = database.prepare("SELECT id FROM users WHERE password_reset_token = ? AND password_reset_expires_at > datetime('now')").get(token);
+    if (!user) return res.status(400).json({ message: 'Linkul de resetare nu este valid sau a expirat.' });
+    const passwordHash = await bcrypt.hash(password, 12);
+    database.prepare('UPDATE users SET password_hash = ?, password_reset_token = NULL, password_reset_expires_at = NULL WHERE id = ?').run(passwordHash, user.id);
+    return res.json({ message: 'Parola a fost schimbată. Te poți autentifica.' });
 });
 
 app.post('/api/logout', (req, res) => {
