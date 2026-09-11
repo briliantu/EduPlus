@@ -16,6 +16,7 @@
                 <a href="lectii.html">Lecții Online</a>
                 <a href="compilator.html">Compilator C/C++</a>
                 <a href="inscriere.html">Înscrieri</a>
+                <a href="about.html">Despre</a>
                 <span class="account-nav-slot"><a href="auth.html" class="nav-account active-link">Contul meu</a></span>
             </nav>
         </div>
@@ -65,6 +66,12 @@
             <h2>Bun venit, <span id="account-name"></span>.</h2>
             <p>Email: <strong id="account-email"></strong></p>
             <p>Rol: <strong id="account-role"></strong></p>
+            <p>Credite voluntar: <strong id="account-credits">0</strong></p>
+            <section id="student-progress" class="student-progress" aria-labelledby="progress-title">
+                <div class="section-heading-row"><h3 id="progress-title">Progresul meu</h3><span id="progress-percent">0%</span></div>
+                <div class="progress-track"><span id="progress-bar"></span></div>
+                <div class="stats-grid"><div><strong id="lessons-learnt">0</strong><span>Lecții învățate</span></div><div><strong id="exercises-solved">0</strong><span>Exerciții rezolvate</span></div><div><strong id="hours-spent">0</strong><span>Ore pe platformă</span></div></div>
+            </section>
             <button id="logout-button" class="btn btn-outline" type="button">Deconectare</button>
         </section>
     </main>

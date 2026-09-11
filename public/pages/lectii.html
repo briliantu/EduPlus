@@ -16,6 +16,7 @@
                 <a href="lectii.html" class="active-link">Lecții Online</a>
                 <a href="compilator.html">Compilator C/C++</a>
                 <a href="inscriere.html">Înscrieri</a>
+                <a href="about.html">Despre</a>
                 <span class="account-nav-slot"><a href="auth.html" class="nav-account">Autentificare</a></span>
             </nav>
         </div>
@@ -31,6 +32,48 @@
             <input id="lesson-search" type="search" placeholder="Ex: grafuri, funcții, sortare" autocomplete="off">
             <span id="lesson-count" class="compiler-help" aria-live="polite"></span>
         </div>
+
+        <section id="volunteer-panel" class="creator-panel hidden" aria-labelledby="creator-title">
+            <div>
+                <span class="badge">Spațiul voluntarului</span>
+                <h2 id="creator-title">Adaugă o lecție</h2>
+                <p class="compiler-help">Publică o explicație și exerciții pentru comunitate. Primești 10 credite pentru fiecare lecție adăugată.</p>
+            </div>
+            <form id="lesson-form" class="lesson-form">
+                <label for="lesson-title">Titlu</label>
+                <input id="lesson-title" name="title" required minlength="4">
+                <label for="lesson-subject">Materie</label>
+                <input id="lesson-subject" name="subject" placeholder="Matematică sau Informatică" required>
+                <label for="lesson-summary">Pe scurt</label>
+                <input id="lesson-summary" name="summary" required minlength="10">
+                <label for="lesson-content">Explicație</label>
+                <textarea id="lesson-content" name="content" required minlength="20"></textarea>
+                <div class="exercise-builder">
+                    <h3>Exerciții</h3>
+                    <p class="compiler-help">Adaugă două sau trei exerciții. Pentru variante, separă răspunsurile cu virgulă.</p>
+                    <div class="exercise-entry"><label>Exercițiul 1</label><input name="question-1" required placeholder="Întrebare"><input name="answer-1" required placeholder="Răspuns corect"></div>
+                    <div class="exercise-entry"><label>Exercițiul 2</label><input name="question-2" required placeholder="Întrebare"><input name="answer-2" required placeholder="Răspuns corect"></div>
+                    <div class="exercise-entry"><label>Exercițiul 3</label><input name="question-3" placeholder="Întrebare opțională"><input name="answer-3" placeholder="Răspuns corect"></div>
+                </div>
+                <button class="btn" type="submit">Publică lecția</button>
+                <p id="lesson-form-message" class="form-message" role="status"></p>
+            </form>
+        </section>
+
+        <section class="dynamic-lessons" aria-labelledby="community-lessons-title">
+            <div class="section-heading-row">
+                <div><span class="badge">Comunitate</span><h2 id="community-lessons-title">Lecții și practică</h2></div>
+                <span id="progress-summary" class="compiler-help"></span>
+            </div>
+            <div id="lesson-library" class="lesson-library"></div>
+        </section>
+        <section id="practice-panel" class="practice-panel hidden" aria-labelledby="practice-title">
+            <div class="section-heading-row"><div><span class="badge">Mini-practică</span><h2 id="practice-title"></h2></div><button id="close-practice" class="btn btn-outline" type="button">Închide</button></div>
+            <p id="practice-content" class="practice-content"></p>
+            <div id="practice-exercises" class="practice-exercises"></div>
+            <p id="practice-message" class="form-message" role="status"></p>
+        </section>
+
         <div class="grid lesson-columns" id="lesson-grid">
             <section class="card">
                 <span class="badge">Matematică</span>

@@ -43,6 +43,23 @@ function renderAccount(user) {
     document.getElementById('account-name').textContent = user.name;
     document.getElementById('account-email').textContent = user.email;
     document.getElementById('account-role').textContent = user.role === 'voluntar' ? 'Voluntar' : 'Elev';
+    document.getElementById('account-credits').textContent = user.credits || 0;
+    document.getElementById('student-progress').classList.toggle('hidden', user.role !== 'elev');
+    if (user.role === 'elev') {
+        loadProgress();
+    }
+}
+
+async function loadProgress() {
+    const response = await fetch('/api/progress', { credentials: 'same-origin' });
+    if (!response.ok) return;
+    const progress = await response.json();
+    const percent = progress.totalLessons ? Math.min(100, Math.round((progress.lessonsLearnt / progress.totalLessons) * 100)) : 0;
+    document.getElementById('progress-percent').textContent = `${percent}%`;
+    document.getElementById('progress-bar').style.width = `${percent}%`;
+    document.getElementById('lessons-learnt').textContent = progress.lessonsLearnt;
+    document.getElementById('exercises-solved').textContent = progress.exercisesSolved;
+    document.getElementById('hours-spent').textContent = progress.hoursSpent;
 }
 
 async function submitAuth(endpoint, form) {
