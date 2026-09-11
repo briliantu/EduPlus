@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecții Online | EduPlus12</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Sari la conținut</a>
+    <header>
+        <div class="container nav-wrapper">
+            <a href="../index.html" class="logo">EduPlus12 Online</a>
+            <nav aria-label="Navigație principală">
+                <a href="programa.html">Programă Bac</a>
+                <a href="lectii.html" class="active-link">Lecții Online</a>
+                <a href="compilator.html">Compilator C/C++</a>
+                <a href="inscriere.html">Înscrieri</a>
+                <a href="auth.html" class="nav-account">Autentificare</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" class="container page-content">
+        <span class="badge">Învață pas cu pas</span>
+        <h1 class="page-title">Lecții online</h1>
+        <p class="page-intro">Alege materia și capitolul pe care vrei să îl exersezi astăzi.</p>
+
+        <div class="lesson-toolbar">
+            <label for="lesson-search">Caută o lecție</label>
+            <input id="lesson-search" type="search" placeholder="Ex: grafuri, funcții, sortare" autocomplete="off">
+            <span id="lesson-count" class="compiler-help" aria-live="polite"></span>
+        </div>
+        <div class="grid lesson-columns" id="lesson-grid">
+            <section class="card">
+                <span class="badge">Matematică</span>
+                <h2>Recapitulare esențială</h2>
+                <ul class="lesson-list lesson-links">
+                    <li data-lesson="funcții ecuații"><span>Funcții și ecuații</span><a href="programa.html">Începe</a></li>
+                    <li data-lesson="polinoame coeficienți reali"><span>Polinoame cu coeficienți reali</span><a href="programa.html">Începe</a></li>
+                    <li data-lesson="calcul integral primitive"><span>Calcul integral și primitive</span><a href="programa.html">Începe</a></li>
+                    <li data-lesson="subgrupuri inele"><span>Subgrupuri și inele</span><a href="programa.html">Începe</a></li>
+                </ul>
+            </section>
+            <section class="card">
+                <span class="badge">Informatică</span>
+                <h2>Algoritmică pentru Bac</h2>
+                <ul class="lesson-list lesson-links">
+                    <li data-lesson="parcurgerea arborilor grafurilor"><span>Parcurgerea arborilor și grafurilor</span><a href="compilator.html">Testează</a></li>
+                    <li data-lesson="metoda backtracking"><span>Metoda backtracking</span><a href="compilator.html">Testează</a></li>
+                    <li data-lesson="șiruri caractere"><span>Șiruri de caractere</span><a href="compilator.html">Testează</a></li>
+                    <li data-lesson="căutare sortare"><span>Căutare și sortare</span><a href="compilator.html">Testează</a></li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer><div class="container"><p>&copy; 2026 EduPlus12. Platformă gratuită de pregătire online.</p></div></footer>
+    <script src="../assets/js/lessons.js" defer></script>
+</body>
+</html>

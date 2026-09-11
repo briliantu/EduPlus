@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contul meu | EduPlus12</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Sari la conținut</a>
+    <header>
+        <div class="container nav-wrapper">
+            <a href="../index.html" class="logo">EduPlus12 Online</a>
+            <nav aria-label="Navigație principală">
+                <a href="programa.html">Programă Bac</a>
+                <a href="lectii.html">Lecții Online</a>
+                <a href="compilator.html">Compilator C/C++</a>
+                <a href="inscriere.html">Înscrieri</a>
+                <a href="auth.html" class="nav-account active-link">Contul meu</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" class="container page-content auth-page">
+        <section class="auth-shell">
+            <div class="auth-intro">
+                <span class="badge">EduPlus12</span>
+                <h1>Rămâi conectat la progresul tău.</h1>
+                <p>Creează un cont pentru a participa la comunitate sau autentifică-te pentru a-ți vedea profilul.</p>
+            </div>
+            <div class="auth-card">
+                <div class="auth-tabs" role="tablist">
+                    <button class="auth-tab active" id="login-tab" type="button" role="tab" aria-selected="true">Autentificare</button>
+                    <button class="auth-tab" id="register-tab" type="button" role="tab" aria-selected="false">Înregistrare</button>
+                </div>
+
+                <form id="login-form" class="auth-form">
+                    <label for="login-email">Email</label>
+                    <input id="login-email" name="email" type="email" autocomplete="email" required>
+                    <label for="login-password">Parolă</label>
+                    <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+                    <button class="btn" type="submit">Intră în cont</button>
+                </form>
+
+                <form id="register-form" class="auth-form hidden">
+                    <label for="register-name">Nume</label>
+                    <input id="register-name" name="name" type="text" autocomplete="name" minlength="2" required>
+                    <label for="register-email">Email</label>
+                    <input id="register-email" name="email" type="email" autocomplete="email" required>
+                    <label for="register-role">Tip cont</label>
+                    <select id="register-role" name="role" required>
+                        <option value="elev">Elev</option>
+                        <option value="voluntar">Voluntar</option>
+                    </select>
+                    <label for="register-password">Parolă</label>
+                    <input id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" required>
+                    <button class="btn" type="submit">Creează contul</button>
+                </form>
+                <p id="auth-message" class="form-message" role="status"></p>
+            </div>
+        </section>
+
+        <section id="account-panel" class="account-panel hidden">
+            <span class="badge">Cont activ</span>
+            <h2>Bun venit, <span id="account-name"></span>.</h2>
+            <p>Email: <strong id="account-email"></strong></p>
+            <p>Rol: <strong id="account-role"></strong></p>
+            <button id="logout-button" class="btn btn-outline" type="button">Deconectare</button>
+        </section>
+    </main>
+
+    <footer><div class="container"><p>&copy; 2026 EduPlus12. Platformă gratuită de pregătire online.</p></div></footer>
+    <script src="../assets/js/auth.js" defer></script>
+</body>
+</html>

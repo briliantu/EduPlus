@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compilator C/C++ | EduPlus12</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Sari la conținut</a>
+    <header>
+        <div class="container nav-wrapper">
+            <a href="../index.html" class="logo">EduPlus12 Online</a>
+            <nav aria-label="Navigație principală">
+                <a href="programa.html">Programă Bac</a>
+                <a href="lectii.html">Lecții Online</a>
+                <a href="compilator.html" class="active-link">Compilator C/C++</a>
+                <a href="inscriere.html">Înscrieri</a>
+                <a href="auth.html" class="nav-account">Autentificare</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content" class="container page-content">
+        <span class="badge">Laborator în browser</span>
+        <h1 class="page-title">Compilator C/C++</h1>
+        <p class="page-intro">Scrie codul, adaugă datele de intrare și rulează-l într-un mediu de execuție izolat.</p>
+        <div class="compiler-container">
+            <label for="language" class="compiler-label">Limbaj:</label>
+            <select id="language" class="compiler-select">
+                <option value="cpp">C++</option>
+                <option value="c">C</option>
+            </select>
+            <div class="compiler-field">
+                <label for="code" id="code-label" class="compiler-label">Cod sursă C++:</label>
+                <textarea id="code" spellcheck="false">#include <iostream>
+using namespace std;
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    cout << "Suma este: " << a + b << endl;
+    return 0;
+}</textarea>
+            </div>
+            <div class="compiler-field">
+                <label for="stdin" class="compiler-label">Date de intrare (stdin):</label>
+                <textarea id="stdin" placeholder="Ex: 5 10">5 10</textarea>
+            </div>
+            <div class="compiler-controls">
+                <button class="btn" id="run-code" type="button">Rulează și testează codul</button>
+                <button class="btn btn-outline" id="clear-output" type="button">Curăță rezultatul</button>
+            </div>
+            <label class="compiler-label">Rezultat / output compilator:</label>
+            <div class="output-box" id="output">Rezultatul execuției va apărea aici...</div>
+        </div>
+    </main>
+
+    <footer><div class="container"><p>&copy; 2026 EduPlus12. Platformă gratuită de pregătire online.</p></div></footer>
+    <script src="../assets/js/script.js" defer></script>
+</body>
+</html>
